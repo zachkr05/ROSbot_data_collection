@@ -83,6 +83,7 @@ def main():
     lowest_loss = 1e5
     logfreq = 20
     for epoch in range(args.epochs):
+        epoch_start_time = time.time() # Record start time for the epoch
         running_loss = 0.0
         for i, hashmap in enumerate(trainloader, 0):
             x = hashmap['image name'].float().to(device)
@@ -102,7 +103,7 @@ def main():
             running_loss += loss.item()
             if i % logfreq == logfreq-1:  # print every 2000 mini-batches
                 print('[%d, %5d] loss: %.7f' %
-                      (epoch + 1, i + 1, running_loss / logfreq))
+                    (epoch + 1, i + 1, running_loss / logfreq))
                 if (running_loss / logfreq) < lowest_loss:
                     print(f"New best model! MSE loss: {running_loss / logfreq}")
                     model_name = f"./model-{iteration}-best.pt"
@@ -110,7 +111,11 @@ def main():
                     torch.save(model, model_name)
                     lowest_loss = running_loss / logfreq
                 running_loss = 0.0
+        epoch_end_time = time.time()  # Record end time for the epoch
+        epoch_duration = epoch_end_time - epoch_start_time # Record total time for the epoch
+        print("Epoch Train Duration: {}".format(epoch_duration))
         print(f"Finished {epoch=}")
+        sys.stdout.flush()
         model_name = f"/u/<your-computing-id>/ROSbot_data_collection/models/Dave2-Keras/model-{iteration}-epoch{epoch}.pt"
         print(f"Saving model to {model_name}")
         torch.save(model, model_name)
