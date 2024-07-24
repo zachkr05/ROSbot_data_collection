@@ -151,20 +151,28 @@ class MultiDirectoryDataSequence(data.Dataset):
 
     def __getitem__(self, idx):
         # helper function to apply individual transformations to the image
-        def custom_transform(image, transform_funcs):
+        def custom_transform(image, transform_funcs, idx):
             augmented_images = []
-            for transform_func in transform_funcs:
+            save_dir = 'augmented_images'
+            os.makedirs(save_dir, exist_ok=True)
+
+            for i, transform_func in enumerate(transform_funcs):
                 try:
                     # ensure image is in PIL format
                     if isinstance(image, torch.Tensor):
                         image = ToPILImage()(image)
                     augmented_image = transform_func(image, 0.5)  # Apply with 50% intensity
                     augmented_images.append(ToTensor()(augmented_image))
+
+                    # Save the augmented image to disk
+                    augmented_image.save(os.path.join(save_dir, f'augmented_{idx}_{i}.png'))
+
                 except Exception as e:
                     print(f"Error applying {transform_func.__name__}: {e}")
             return augmented_images
 
-        # helper function to apply composed transformations to the image
+
+    # helper function to apply composed transformations to the image
         def apply_composed_transformations(image, composed_transform_funcs, idx):
             augmented_images = []
             for transform_func_list in composed_transform_funcs:
