@@ -139,57 +139,7 @@ def main():
                     print(f"Saving model to {model_name}", flush=True)
                     torch.save(model, model_name)
                     lowest_loss = running_loss / logfreq
-                running_loss = 0.0for i, batch in enumerate(trainloader, 0):
-            batch_images = []
-            batch_labels = []
-            #chatgpt
-            # Changed: Access sample directly from batch
-            for sample in batch:
-                batch_images.append(sample['image name'])  # Append image to batch_images list
-                batch_labels.append(sample['angular_speed_z'])  # Append angular speed to batch_labels list
-
-            # Convert lists to tensors
-            #batch size(64), channels (3), height(376), width (1344)
-            #RuntimeError: stack expects each tensor to be equal size, but got [64, 3, 376, 1344] at entry 0 and [64, 3, 188, 188] at entry 5
-            batch_images = torch.stack(batch_images).float().to(device)  # Convert image list to tensor and move to device
-            batch_labels = torch.stack(batch_labels).float().to(device)  # Convert label list to tensor and move to device
-
-            # Wrap in variables for autograd
-            batch_images = Variable(batch_images, requires_grad=True)
-            batch_labels = Variable(batch_labels, requires_grad=False)
-
-
-            # -1 means automatically determine the size of this dimension, 3 color channels, 720 height, 2560 wide
-            batch_images = batch_images.view(-1, 3, 376, 1344)  # New resolution: channels, height, width
-
-
-            # Forward pass through the DNN
-            outputs = model(batch_images)  # Pass the batch of images to the DNN
-            loss = F.mse_loss(outputs.flatten(), batch_labels)  # Calculate the loss
-            loss.backward()  # Backpropagate the loss
-
-            if (i + 1) % gradientStart == 0:
-                optimizer.step()
-                optimizer.zero_grad()
-            running_loss += loss.item()
-            if i % logfreq == logfreq - 1:
-                loss_value = running_loss / logfreq
-                loss_history.append(loss_value)
-                print('[%d, %5d] loss: %.7f' % (epoch + 1, i + 1, running_loss / logfreq), flush=True)
-                if (running_loss / logfreq) < lowest_loss:
-                    print(f"New best model! MSE loss: {running_loss / logfreq}", flush=True)
-                    model_name = f"./model-{iteration}-{time.time()}-best.pt"
-                    print(f"Saving model to {model_name}", flush=True)
-                    torch.save(model, model_name)
-                    lowest_loss = running_loss / logfreq
                 running_loss = 0.0
-        print(f"Finished {epoch=}", flush=True)
-        model_name = f"./model-{iteration}-epoch{epoch}-{time.time()}.pt"
-        torch.save(model, model_name)
-        current_directory = os.getcwd()
-        print(f"Saving file to directory: models/{current_directory}", flush = True)
-        with open(f'models/loss_history_{epoch}_{iteration}-{time.time()}.pkl', 'wb') as f:
-            pickle.dump(loss_history, f)
         print(f"Finished {epoch=}", flush=True)
         model_name = f"./model-{iteration}-epoch{epoch}-{time.time()}.pt"
         torch.save(model, model_name)

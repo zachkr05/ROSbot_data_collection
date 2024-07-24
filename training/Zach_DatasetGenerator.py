@@ -192,7 +192,7 @@ class MultiDirectoryDataSequence(data.Dataset):
                         augmented_image.save(os.path.join(save_dir, f'composed_augmented_{idx}.png'))
 
                 except Exception as e:
-                    print(f"Error applying composed transformations {transform_func_list}: {e}")
+                    print(f"Error applying composed transformations {transform_func_list}: {e}", flush = True)
             return augmented_images
 
         # Check if the sample is already in the cache
