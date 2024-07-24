@@ -285,9 +285,18 @@ class MultiDirectoryDataSequence(data.Dataset):
         all_transformed_images = transformed_images + composed_transformed_images
 
 
-        # create a list of augmented samples
+        # Original sample
+        orig_sample = {
+            "image name": image,
+            "angular_speed_z": torch.FloatTensor([y_steer]),
+            "linear_speed_x": torch.FloatTensor([y_throttle]),
+            "lidar_ranges": lidar_ranges,
+            "all": torch.FloatTensor([y_steer, y_throttle])
+        }
+
+        # Augmented samples
         augmented_samples = []
-        for img in all_transformed_images:
+        for img in self.apply_transformations(image):
             augmented_samples.append({
                 "image name": img,
                 "angular_speed_z": y_steer,
@@ -296,17 +305,10 @@ class MultiDirectoryDataSequence(data.Dataset):
                 "all": torch.FloatTensor([y_steer, y_throttle])
             })
 
-        orig_sample = {
-            "image name": image,
-            "angular_speed_z": torch.FloatTensor([orig_y_steer]),
-            "linear_speed_x": torch.FloatTensor([y_throttle]),
-            "lidar_ranges": lidar_ranges,
-            "all": torch.FloatTensor([orig_y_steer, y_throttle])
-        }
+        # Combine original and augmented samples
+        samples = [orig_sample] + augmented_samples
 
-        self.cache[idx] = orig_sample
-
-        return augmented_samples
+        return samples
 
     def get_outputs_distribution(self):
         all_outputs = np.array([])
