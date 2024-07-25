@@ -171,9 +171,7 @@ class MultiDirectoryDataSequence(data.Dataset):
                     print(f"Error applying {transform_func.__name__}: {e}")
             return augmented_images
 
-
-
-    # helper function to apply composed transformations to the image
+        # helper function to apply composed transformations to the image
         def apply_composed_transformations(image, composed_transform_funcs, idx):
             augmented_images = []
             for transform_func_list in composed_transform_funcs:
@@ -193,7 +191,7 @@ class MultiDirectoryDataSequence(data.Dataset):
                         augmented_image.save(os.path.join(save_dir, f'composed_augmented_{idx}.png'))
 
                 except Exception as e:
-                    print(f"Error applying composed transformations {transform_func_list}: {e}", flush = True)
+                    print(f"Error applying composed transformations {transform_func_list}: {e}", flush=True)
             return augmented_images
 
         # Check if the sample is already in the cache
@@ -205,7 +203,6 @@ class MultiDirectoryDataSequence(data.Dataset):
                 image = copy.deepcopy(sample["image name"])
 
                 # Define the list of individual transformation functions
-                # chatgpt
                 transform_funcs = [
                     add_shadow, time_of_day_transform_dusk, add_elastic_transform,
                     add_blur_fn, color_jitter_fn, adjust_brightness_fn,
@@ -214,7 +211,6 @@ class MultiDirectoryDataSequence(data.Dataset):
                 ]
 
                 # Define the list of composed transformation functions
-                # chatgpt
                 composed_transform_funcs = [
                     [add_shadow, time_of_day_transform_dusk],
                     [add_elastic_transform, add_blur_fn],
@@ -232,10 +228,7 @@ class MultiDirectoryDataSequence(data.Dataset):
                 # Combine individual and composed transformations
                 all_transformed_images = transformed_images + composed_transformed_images
 
-
-
-            # Create the sample dictionary
-                # create a list of augmented samples
+                # Create the sample dictionary
                 augmented_samples = []
                 for img in all_transformed_images:
                     augmented_samples.append({
@@ -259,7 +252,6 @@ class MultiDirectoryDataSequence(data.Dataset):
         if self.transform:
             image = self.transform(image)
 
-
         # Retrieve the corresponding steering and throttle values from the dataframe
         pathobj = Path(img_name)
         df = self.dfs_hashmap[f"{pathobj.parent}"]
@@ -276,16 +268,23 @@ class MultiDirectoryDataSequence(data.Dataset):
 
         # Define the list of individual transformation functions
         transform_funcs = [
-
+            add_shadow, time_of_day_transform_dusk, add_elastic_transform,
+            add_blur_fn, color_jitter_fn, adjust_brightness_fn,
+            adjust_contrast_fn, adjust_saturation_fn, horizontal_flip,
+            add_lens_distortion, add_noise
         ]
 
         # Define the list of composed transformation functions
         composed_transform_funcs = [
-
+            [add_shadow, time_of_day_transform_dusk],
+            [add_elastic_transform, add_blur_fn],
+            [adjust_brightness_fn, adjust_contrast_fn],
+            [adjust_saturation_fn, horizontal_flip],
+            [add_lens_distortion, add_noise]
         ]
 
         # Apply custom transformations
-        transformed_images = custom_transform(image, transform_funcs)
+        transformed_images = custom_transform(image, transform_funcs, idx)
 
         # Apply composed transformations
         composed_transformed_images = apply_composed_transformations(image, composed_transform_funcs, idx)
@@ -293,19 +292,18 @@ class MultiDirectoryDataSequence(data.Dataset):
         # Combine individual and composed transformations
         all_transformed_images = transformed_images + composed_transformed_images
 
-
         # Original sample
         orig_sample = {
             "image name": image,
-            "angular_speed_z": torch.FloatTensor([y_steer]),
-            "linear_speed_x": torch.FloatTensor([y_throttle]),
+            "angular_speed_z": y_steer,
+            "linear_speed_x": y_throttle,
             "lidar_ranges": lidar_ranges,
             "all": torch.FloatTensor([y_steer, y_throttle])
         }
 
         # Augmented samples
         augmented_samples = []
-        for img in self.apply_transformations(image):
+        for img in all_transformed_images:
             augmented_samples.append({
                 "image name": img,
                 "angular_speed_z": y_steer,
@@ -324,9 +322,7 @@ class MultiDirectoryDataSequence(data.Dataset):
         for key in self.dfs_hashmap.keys():
             df = self.dfs_hashmap[key]
             arr = df['angular_speed_z'].to_numpy()
-            # print("len(arr)=", len(arr))
             all_outputs = np.concatenate((all_outputs, arr), axis=0)
-            # print(f"Retrieved dataframe {key=}")
         all_outputs = np.array(all_outputs)
         moments = self.get_distribution_moments(all_outputs)
         return moments
@@ -347,3 +343,4 @@ class MultiDirectoryDataSequence(data.Dataset):
         moments['max'] = max(arr)
         moments['min'] = min(arr)
         return moments
+
