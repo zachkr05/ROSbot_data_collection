@@ -172,6 +172,7 @@ class MultiDirectoryDataSequence(data.Dataset):
             return augmented_images
 
 
+
     # helper function to apply composed transformations to the image
         def apply_composed_transformations(image, composed_transform_funcs, idx):
             augmented_images = []
@@ -223,7 +224,7 @@ class MultiDirectoryDataSequence(data.Dataset):
                 ]
 
                 # Apply custom transformations
-                transformed_images = custom_transform(image, transform_funcs)
+                transformed_images = custom_transform(image, transform_funcs, idx)
 
                 # Apply composed transformations
                 composed_transformed_images = apply_composed_transformations(image, composed_transform_funcs, idx)
