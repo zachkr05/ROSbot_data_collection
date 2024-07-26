@@ -181,7 +181,7 @@ class MultiDirectoryDataSequence(data.Dataset):
                         image = ToPILImage()(image)
                     augmented_image = image
                     for transform_func in transform_func_list:
-                        augmented_image = transform_func(augmented_image, 0.5)  # Apply with 50% intensity
+                        augmented_image = transform_func(augmented_image, 0.2)  # Apply with 50% intensity
                     augmented_images.append(ToTensor()(augmented_image))
 
                     # Save every 1000th composed augmented image
@@ -204,19 +204,14 @@ class MultiDirectoryDataSequence(data.Dataset):
 
                 # Define the list of individual transformation functions
                 transform_funcs = [
-                    add_shadow, time_of_day_transform_dusk, add_elastic_transform,
+                    add_shadow,  add_elastic_transform,
                     add_blur_fn, color_jitter_fn, adjust_brightness_fn,
-                    adjust_contrast_fn, adjust_saturation_fn, horizontal_flip,
-                    add_lens_distortion, add_noise
+                    adjust_contrast_fn, adjust_saturation_fn, horizontal_flip
                 ]
 
                 # Define the list of composed transformation functions
                 composed_transform_funcs = [
-                    [add_shadow, time_of_day_transform_dusk],
                     [add_elastic_transform, add_blur_fn],
-                    [adjust_brightness_fn, adjust_contrast_fn],
-                    [adjust_saturation_fn, horizontal_flip],
-                    [add_lens_distortion, add_noise]
                 ]
 
                 # Apply custom transformations

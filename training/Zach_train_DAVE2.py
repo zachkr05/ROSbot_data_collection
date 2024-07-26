@@ -33,7 +33,7 @@ def parse_arguments():
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--robustification", type=bool, default=True)
+    parser.add_argument("--robustification", action='store_true')
     parser.add_argument("--noisevar", type=int, default=15)
     parser.add_argument("--log_interval", type=int, default=50)
     args = parser.parse_args()
@@ -82,7 +82,7 @@ def main():
     trainloader = DataLoader(dataset, batch_size=args.batch, shuffle=True, worker_init_fn=worker_init_fn)
     print("time to load dataset: {}".format(time.time() - start_time))
 
-    iteration = f'{model._get_name()}-{input_shape[0]}x{input_shape[1]}-lr{args.lr}-{args.epochs}epoch-{args.batch}batch-lossMSE-{int(dataset.get_total_samples()/1000)}Ksamples'
+    iteration = f'{model._get_name()}-{input_shape[0]}x{input_shape[1]}-lr{args.lr}-{args.epochs}epoch-{args.batch}batch-lossMSE-{int(dataset.get_total_samples()/1000)}Ksamples-JOHANN+MATH_DATA'
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"{iteration=}")
     print(f"{device=}")
