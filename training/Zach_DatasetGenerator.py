@@ -161,7 +161,7 @@ class MultiDirectoryDataSequence(data.Dataset):
                     # ensure image is in PIL format
                     if isinstance(image, torch.Tensor):
                         image = ToPILImage()(image)
-                    augmented_image = transform_func(image, 0.5)  # Apply with 50% intensity
+                    augmented_image = transform_func(image, 0.2)  # Apply with 50% intensity
                     augmented_images.append(ToTensor()(augmented_image))
 
                     # Save the augmented image to disk
