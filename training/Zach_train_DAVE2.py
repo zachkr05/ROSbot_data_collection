@@ -122,7 +122,7 @@ def main():
 
             # Forward pass through the DNN
             outputs = model(batch_images)  # Pass the batch of images to the DNN
-            loss = F.mse_loss(outputs.flatten(), batch_labels)  # Calculate the loss
+            loss = F.mse_loss(outputs.flatten(), batch_labels)  # loss = F.l1_loss(outputs.flatten(), batch_labels)  # Changed to Mean Absolute Error to calculate the loss
             loss.backward()  # Backpropagate the loss
 
             if (i + 1) % gradientStart == 0:
