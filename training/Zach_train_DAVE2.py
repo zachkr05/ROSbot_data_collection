@@ -90,7 +90,7 @@ def main():
     # if loss doesnt level out after 20 epochs, either inc epochs or inc learning rate
     optimizer = optim.Adam(model.parameters(), lr=args.lr) #, betas=(0.9, 0.999), eps=1e-08)
     lowest_loss = 1e5
-
+    slurm_job_id = os.getenv('SLURM_JOB_ID', 'default_job_id')
     gradientStart = 4
 
     for epoch in range(args.epochs):
@@ -147,7 +147,7 @@ def main():
 
         print(f"Finished epoch {epoch}, running_loss = {running_loss}", flush=True)
 
-        model_name = f"./model-{iteration}-epoch{epoch}-{time.time()}.pt"
+        model_name = f"./models/{slurm_job_id}/model-{iteration}-epoch{epoch}-{time.time()}.pt"
         torch.save(model, model_name)
         current_directory = os.getcwd()
         print(f"Saving file to directory: models/{current_directory}", flush=True)
